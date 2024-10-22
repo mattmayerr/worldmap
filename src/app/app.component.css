@@ -1,0 +1,17 @@
+body {
+    justify-content: center;
+    display: flex;
+}
+
+svg {
+    width: 1000px;
+}
+
+.column2 {
+    display: flex;
+    flex-direction: column;
+}
+
+.c1 {
+    text-align: center;
+}
