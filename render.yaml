@@ -1,0 +1,27 @@
+# Render Blueprint — https://render.com
+# Dashboard → New → Blueprint → connect repo (uses this file)
+# Or: New Web Service → Docker, then add the persistent disk below manually.
+
+services:
+  - type: web
+    name: sales-agent-assistant
+    runtime: docker
+    plan: starter
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+    disk:
+      name: app-data
+      mountPath: /app/data
+      sizeGB: 1

@@ -1,0 +1,14 @@
+# Railway — https://railway.app
+# 1. New project → Deploy from GitHub → select this repo
+# 2. Add a Volume mounted at /app/data (required for uploads, users, sessions)
+# 3. Set env vars: OPENAI_API_KEY, AUTH_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/login"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

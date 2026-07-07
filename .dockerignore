@@ -1,0 +1,22 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+README.md
+data/documents/*
+data/practice-sessions/*
+data/agent-progression/*
+data/objection-examples/*
+data/user-objections/*
+data/avatars/*
+data/profile.json
+data/users.json
+npm-debug.log*
+.DS_Store
+terminals
+.cursor
+COD Camos
+public/camos
