@@ -15,7 +15,10 @@ export function DocumentManager() {
   const [documents, setDocuments] = useState<StoredDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [importingUrl, setImportingUrl] = useState(false);
+  const [websiteUrl, setWebsiteUrl] = useState("https://everythingbreaks.com/");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
   const loadDocuments = useCallback(async () => {
@@ -43,6 +46,7 @@ export function DocumentManager() {
 
     setUploading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       for (const file of files) {
@@ -68,8 +72,38 @@ export function DocumentManager() {
     }
   }
 
+  async function importWebsite() {
+    const url = websiteUrl.trim();
+    if (!url || importingUrl) return;
+
+    setImportingUrl(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await fetch("/api/documents/import-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Website import failed.");
+      }
+
+      await loadDocuments();
+      setSuccess(`Imported ${data.document.name}. Re-importing the same URL will refresh it.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Website import failed.");
+    } finally {
+      setImportingUrl(false);
+    }
+  }
+
   async function removeDocument(id: string) {
     setError(null);
+    setSuccess(null);
     try {
       const response = await fetch(`/api/documents/${id}`, { method: "DELETE" });
       const data = await response.json();
@@ -85,16 +119,51 @@ export function DocumentManager() {
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-white">Knowledge base</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-400">
-          Upload PDFs, CSVs, and text files about your business. The assistant uses them in both
-          practice and coaching modes to stay accurate about your products, pricing, and messaging.
+          Upload PDFs, CSVs, and text files — or import your company website. The assistant uses
+          these in practice, coach, and knowledge modes.
         </p>
       </div>
+
+      {success && (
+        <div className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+          {success}
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
           {error}
         </div>
       )}
+
+      <div className="mb-8 rounded-2xl bg-surface-raised p-5 ring-1 ring-surface-border">
+        <h3 className="text-sm font-medium text-white">Import from website</h3>
+        <p className="mt-1 text-xs leading-relaxed text-slate-500">
+          Pull public content from your company site into the knowledge base. Re-import to refresh.
+        </p>
+        <form
+          className="mt-4 flex flex-col gap-3 sm:flex-row"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void importWebsite();
+          }}
+        >
+          <input
+            type="url"
+            value={websiteUrl}
+            onChange={(event) => setWebsiteUrl(event.target.value)}
+            placeholder="https://everythingbreaks.com/"
+            className="flex-1 rounded-xl border border-surface-border bg-surface px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-accent/50"
+          />
+          <button
+            type="submit"
+            disabled={importingUrl || !websiteUrl.trim()}
+            className="rounded-xl bg-accent px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {importingUrl ? "Importing..." : "Import website"}
+          </button>
+        </form>
+      </div>
 
       <label
         className={`mb-8 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 transition ${
@@ -151,10 +220,13 @@ export function DocumentManager() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium text-white">{doc.name}</span>
                     <span className="rounded-full bg-surface px-2 py-0.5 text-xs text-slate-400">
-                      {doc.type}
+                      {doc.type === ".website" ? "website" : doc.type}
                     </span>
                     <span className="text-xs text-slate-500">{formatBytes(doc.size)}</span>
                   </div>
+                  {doc.sourceUrl && (
+                    <p className="mt-1 text-xs text-slate-500 truncate">{doc.sourceUrl}</p>
+                  )}
                   <p className="mt-1 text-xs leading-relaxed text-slate-500">{doc.excerpt}...</p>
                 </div>
                 <button

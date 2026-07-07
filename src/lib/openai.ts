@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { prepareChatPayload } from "./context-budget";
 import type { ChatMessage } from "./types";
 
 export function getOpenAIClient(): OpenAI {
@@ -17,19 +18,24 @@ export function getModel(): string {
 
 export async function streamChatCompletion(
   systemPrompt: string,
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  options?: { temperature?: number }
 ): Promise<ReadableStream<Uint8Array>> {
   const client = getOpenAIClient();
   const model = getModel();
+  const { systemPrompt: trimmedSystem, messages: trimmedMessages } = prepareChatPayload(
+    systemPrompt,
+    messages
+  );
 
   const stream = await client.chat.completions.create({
     model,
     stream: true,
     messages: [
-      { role: "system", content: systemPrompt },
-      ...messages.map((m) => ({ role: m.role, content: m.content })),
+      { role: "system", content: trimmedSystem },
+      ...trimmedMessages.map((m) => ({ role: m.role, content: m.content })),
     ],
-    temperature: 0.7,
+    temperature: options?.temperature ?? 0.5,
   });
 
   const encoder = new TextEncoder();

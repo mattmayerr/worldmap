@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminKnowledgePanel } from "@/components/AdminKnowledgePanel";
 import { DEFAULT_PROFILE, type BusinessProfile } from "@/lib/types";
 
 const FIELDS: Array<{
-  key: keyof BusinessProfile;
+  key: Exclude<keyof BusinessProfile, "adminKnowledgeEntries">;
   label: string;
   placeholder: string;
   rows?: number;
@@ -35,13 +36,49 @@ const FIELDS: Array<{
   {
     key: "commonObjections",
     label: "Common objections",
-    placeholder: "Price too high, already have a vendor, need to think about it...",
+    placeholder:
+      "Need to ask my wife, don't have my credit card, not worth the price, bad timing...",
+    rows: 3,
+  },
+  {
+    key: "productsAndPricing",
+    label: "Products, plans & pricing",
+    placeholder:
+      "Home plan $X/mo, Auto Standard/Enhanced/Deluxe/Topline tiers, Critical roadside, electronics coverage, deductibles, monthly vs annual...",
+    rows: 4,
+  },
+  {
+    key: "talkingPoints",
+    label: "Key talking points & scripts",
+    placeholder:
+      "We administer our own policies so claims get paid directly. Exceptional claim completion rates. No middleman. 24/7 claims line...",
+    rows: 4,
+  },
+  {
+    key: "competitorContext",
+    label: "vs. competitors / alternatives",
+    placeholder:
+      "How we're different from dealer warranties, home warranty companies, or going without coverage...",
+    rows: 3,
+  },
+  {
+    key: "practiceScenario",
+    label: "Default practice scenario",
+    placeholder:
+      "Outbound call to a 62-year-old homeowner whose HVAC is 8 years old. They've seen repair bills and are on a fixed income...",
     rows: 3,
   },
   {
     key: "salesStage",
     label: "Default sales stage",
     placeholder: "discovery, demo, negotiation, closing",
+  },
+  {
+    key: "salesPolicy",
+    label: "Sales policy",
+    placeholder:
+      "Same-day close requirements, callback rules, mandatory talk tracks... Leave blank to use the default same-day close standard.",
+    rows: 6,
   },
   {
     key: "tone",
@@ -106,8 +143,9 @@ export function SettingsForm() {
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-white">Business profile</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-400">
-          Configure the basics so practice scenarios and coaching advice match your real sales
-          motion. Combine this with uploaded documents for the best results.
+          The more detail you add here, the more specific practice and coaching become. Fill in
+          plans, pricing, scripts, and scenarios — not just the basics. Uploaded PDFs supplement
+          this but won&apos;t replace a strong profile.
         </p>
       </div>
 
@@ -158,6 +196,10 @@ export function SettingsForm() {
           {saving ? "Saving..." : "Save profile"}
         </button>
       </form>
+
+      <div className="mt-10">
+        <AdminKnowledgePanel />
+      </div>
 
       <div className="mt-10 rounded-2xl bg-surface-raised p-5 ring-1 ring-surface-border">
         <h3 className="text-sm font-medium text-white">Setup checklist</h3>

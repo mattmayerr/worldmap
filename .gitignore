@@ -31,6 +31,15 @@ yarn-error.log*
 /data/documents/*
 !/data/documents/.gitkeep
 /data/profile.json
+/data/users.json
+/data/practice-sessions/*
+!/data/practice-sessions/.gitkeep
+/data/objection-examples/*
+!/data/objection-examples/.gitkeep
+/data/user-objections/*
+!/data/user-objections/.gitkeep
+/data/agent-progression/*
+!/data/agent-progression/.gitkeep
 
 # typescript
 next-env.d.ts
